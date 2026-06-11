@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>واجد | استكشاف المنتجات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { fontFamily: { sans: ['Cairo','sans-serif'] } } }
+        }
+    </script>
+    <style>
+        /* ── Theme Variables ── */
+        :root {
+            --bg-page:       #f0f4fa;
+            --bg-card:       #ffffff;
+            --bg-card2:      #f8faff;
+            --border:        rgba(59,130,246,0.10);
+            --border-hover:  rgba(59,130,246,0.30);
+            --text-main:     #0f172a;
+            --text-sub:      #64748b;
+            --blue-1:        #3b82f6;
+            --blue-2:        #2563eb;
+            --glass-bg:      rgba(255,255,255,0.75);
+            --glass-border:  rgba(255,255,255,0.90);
+            --shadow-sm:     0 2px 12px rgba(59,130,246,0.08);
+            --shadow-md:     0 8px 24px rgba(59,130,246,0.12);
+            --shadow-lg:     0 16px 40px rgba(59,130,246,0.16);
+        }
+        [data-theme="dark"] {
+            --bg-page:       #0b0e17;
+            --bg-card:       #141720;
+            --bg-card2:      #191d2c;
+            --border:        rgba(255,255,255,0.06);
+            --border-hover:  rgba(59,130,246,0.30);
+            --text-main:     #f1f5f9;
+            --text-sub:      #94a3b8;
+            --glass-bg:      rgba(20,23,32,0.80);
+            --glass-border:  rgba(255,255,255,0.08);
+            --shadow-sm:     0 2px 12px rgba(0,0,0,0.30);
+            --shadow-md:     0 8px 24px rgba(0,0,0,0.40);
+            --shadow-lg:     0 16px 40px rgba(0,0,0,0.50);
+        }
+
+        html { background: var(--bg-page); }
+        body { background: var(--bg-page); color: var(--text-main); font-family:'Cairo',sans-serif; }
+
+        /* ── NAV (unchanged) ── */
+        .glass-nav {
+            background: var(--glass-bg);
+            border-bottom: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 50;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ── Search ── */
+        .search-box {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            transition: all .22s;
+        }
+        .search-box:focus-within {
+            border-color: var(--blue-1);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        }
+        #searchDropdown {
+            display:none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+        }
+        #searchDropdown.open { display:block }
+        .search-item {
+            display:flex; align-items:center; gap:12px;
+            padding:11px 16px; cursor:pointer; transition:.18s ease;
+            border-bottom:1px solid var(--border);
+            text-decoration:none;
+        }
+        .search-item:hover { background: rgba(59,130,246,0.05); }
+        .search-item:last-child { border-bottom:none; }
+        .search-img { width:44px; height:44px; border-radius:10px; object-fit:cover; flex-shrink:0; }
+        .search-name { font-size:13px; font-weight:700; color:var(--text-main); line-height:1.3; }
+        .search-meta { font-size:11px; color:var(--text-sub); margin-top:2px; }
+        .search-price { font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:700; color:var(--blue-1); white-space:nowrap; }
+        .search-section-lbl {
+            padding:6px 16px; font-size:10px; font-weight:800;
+            color:var(--text-sub); text-transform:uppercase; letter-spacing:.8px;
+            background:var(--bg-card2); border-bottom:1px solid var(--border);
+        }
+
+        /* ── Search Results Page ── */
+        #searchResultsPage { display:none }
+        #searchResultsPage.open { display:block }
+        #mainContent.hidden-for-search { display:none }
+
+        /* ── Category Buttons ── */
+        .cat-btn {
+            flex-shrink:0; padding:7px 16px; border-radius:20px;
+            border:1.5px solid var(--border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            color: var(--text-sub);
+            font-family:'Cairo',sans-serif; font-size:11px; font-weight:700;
+            cursor:pointer; transition:all .22s cubic-bezier(.4,0,.2,1); white-space:nowrap;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .cat-btn:hover {
+            border-color: var(--blue-1); color: var(--blue-1);
+            background: rgba(59,130,246,0.07);
+            transform:translateY(-1px);
+        }
+        .cat-btn.active {
+            background: linear-gradient(135deg,#3b82f6,#2563eb) !important;
+            color: white !important; border-color:transparent !important;
+            box-shadow: 0 4px 14px rgba(59,130,246,0.40) !important;
+            transform:translateY(-1px);
+        }
+
+        /* ══════════════════════════════════
+           الإعلانات — Banner Section
+        ══════════════════════════════════ */
+        .ads-section {
+            padding: 18px 0 8px;
+        }
+        .ads-grid {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            padding-bottom: 4px;
+        }
+        .ads-grid::-webkit-scrollbar { display:none }
+        .ad-card {
+            flex-shrink: 0;
+            width: 220px;
+            height: 220px;
+            scroll-snap-align: start;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-card2);
+            box-shadow: var(--shadow-sm);
+            transition: transform .28s cubic-bezier(.4,0,.2,1), box-shadow .28s;
+        }
+        .ad-card:hover { transform: translateY(-4px) scale(1.02); box-shadow: var(--shadow-md); }
+        .ad-card img {
+            width:100%; height:100%; object-fit:cover;
+            transition: transform .5s cubic-bezier(.4,0,.2,1);
+        }
+        .ad-card:hover img { transform: scale(1.06); }
+        .ad-overlay {
+            position:absolute; inset:0;
+            background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%);
+            opacity:0; transition: opacity .28s;
+        }
+        .ad-card:hover .ad-overlay { opacity:1; }
+        .ad-label {
+            position: absolute; bottom:0; left:0; right:0;
+            padding: 12px 14px;
+            color: white;
+            font-size: 12px; font-weight: 700;
+            transform: translateY(100%);
+            transition: transform .28s cubic-bezier(.4,0,.2,1);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+        }
+        .ad-card:hover .ad-label { transform: translateY(0); }
+        /* placeholder إذا لم تكن هناك صور */
+        .ad-placeholder {
+            width:100%; height:100%;
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            gap:8px; color: var(--text-sub);
+            font-size:11px; font-weight:700;
+        }
+        .ad-placeholder-icon {
+            width:52px; height:52px; border-radius:14px;
+            background: rgba(59,130,246,0.10);
+            display:flex; align-items:center; justify-content:center;
+            font-size:22px;
+        }
+        /* على الجوال: عرض أصغر */
+        @media (max-width:640px) {
+            .ad-card { width: 160px; height: 160px; }
+        }
+
+        /* ══════════════════════════════════
+           المنتجات الموصى بها — Top 4
+        ══════════════════════════════════ */
+        .top-section { padding: 20px 0; }
+        .top-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        @media (max-width:768px) { .top-grid { grid-template-columns: repeat(2, 1fr); gap:10px; } }
+        @media (max-width:400px) { .top-grid { grid-template-columns: repeat(2, 1fr); gap:8px; } }
+
+        .top-card {
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: transform .28s cubic-bezier(.4,0,.2,1), box-shadow .28s, border-color .2s;
+            cursor: pointer;
+            /* زجاجي خفيف */
+            backdrop-filter: blur(4px);
+        }
+        .top-card::before {
+            content:'';
+            position:absolute; inset:0; border-radius:20px; z-index:1;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+            pointer-events:none;
+        }
+        .top-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-md);
+            border-color: var(--border-hover);
+        }
+        .top-card-img {
+            width: 100%; aspect-ratio:1/1;
+            object-fit: cover;
+            display: block;
+            transition: transform .5s cubic-bezier(.4,0,.2,1);
+        }
+        .top-card:hover .top-card-img { transform: scale(1.07); }
+        .top-card-body {
+            padding: 10px 12px 12px;
+        }
+        .top-card-badge {
+            display: inline-flex; align-items:center; gap:4px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color:white; font-size:9px; font-weight:800;
+            padding: 3px 8px; border-radius:8px; margin-bottom:6px;
+            letter-spacing:.3px;
+        }
+        .top-card-name {
+            font-size: 12px; font-weight:700; color:var(--text-main);
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .top-card-price {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size:12px; font-weight:700; color:var(--blue-1);
+            margin-top:4px;
+        }
+
+        /* ══════════════════════════════════
+           رف المنتجات — Carousel Shelf
+        ══════════════════════════════════ */
+        .shelf-section { padding: 20px 0 10px; }
+        .shelf-title-line {
+            display:flex; align-items:center; gap:10px; margin-bottom:16px;
+        }
+        .shelf-title-icon {
+            width:34px; height:34px; border-radius:12px;
+            background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(37,99,235,0.10));
+            border: 1px solid rgba(59,130,246,0.20);
+            display:flex; align-items:center; justify-content:center;
+            font-size:15px; flex-shrink:0;
+        }
+        .shelf-title-line::after {
+            content:''; flex:1; height:1px;
+            background: linear-gradient(to left, transparent, var(--border));
+        }
+
+        /* الرف بتأثير 3D center-focus */
+        .shelf-viewport {
+            position:relative;
+            overflow:hidden;
+            padding: 16px 0 20px;
+        }
+        .shelf-track {
+            position: relative;
+            height: 280px; 
+            width: 100%;
+        }
+
+        /* بطاقة الرف */
+        .shelf-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 140px; /* العرض الافتراضي في حالة الإخفاء */
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(0.8);
+            border-radius: 18px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: all .5s cubic-bezier(.4,0,.2,1);
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+        .shelf-card::before {
+            content:''; position:absolute; inset:0; border-radius:18px; z-index:1;
+            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+            pointer-events:none;
+        }
+
+        /* حركات التموضع الجديدة */
+        .shelf-pos-0 {
+            width: 200px;
+            opacity: 1;
+            z-index: 5;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1.04);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(59,130,246,0.25);
+        }
+        .shelf-pos-1 {
+            width: 170px;
+            opacity: 0.88;
+            z-index: 4;
+            pointer-events: auto;
+            transform: translate(calc(-50% + 195px), -50%);
+        }
+        .shelf-pos-2 {
+            width: 150px;
+            opacity: 0.65;
+            z-index: 3;
+            pointer-events: auto;
+            transform: translate(calc(-50% + 355px), -50%);
+        }
+        .shelf-pos--1 {
+            width: 170px;
+            opacity: 0.88;
+            z-index: 4;
+            pointer-events: auto;
+            transform: translate(calc(-50% - 195px), -50%);
+        }
+        .shelf-pos--2 {
+            width: 150px;
+            opacity: 0.65;
+            z-index: 3;
+            pointer-events: auto;
+            transform: translate(calc(-50% - 355px), -50%);
+        }
+        .shelf-pos-hidden-right {
+            transform: translate(calc(-50% + 480px), -50%) scale(0.8);
+            opacity: 0;
+            z-index: 1;
+        }
+        .shelf-pos-hidden-left {
+            transform: translate(calc(-50% - 480px), -50%) scale(0.8);
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .shelf-card-img {
+            width:100%; aspect-ratio:1/1; object-fit:cover; display:block;
+            transition: transform .5s;
+        }
+        .shelf-card:hover .shelf-card-img { transform: scale(1.06); }
+        .shelf-card-body { padding: 8px 10px 10px; }
+        .shelf-card-name {
+            font-size:11px; font-weight:700; color:var(--text-main);
+            white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        }
+        .shelf-card-shop { font-size:9px; color:var(--text-sub); }
+        .shelf-card-price {
+            font-family:'IBM Plex Mono',monospace; font-size:11px;
+            font-weight:700; color:var(--blue-1); margin-top:3px;
+        }
+
+        /* أسهم الرف */
+        .shelf-arrow {
+            position:absolute; top:50%; transform:translateY(-50%);
+            width:38px; height:38px; border-radius:50%;
+            background: var(--glass-bg);
+            backdrop-filter:blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-md);
+            display:flex; align-items:center; justify-content:center;
+            cursor:pointer; z-index:10;
+            transition:all .22s; font-size:18px; color:var(--text-main);
+        }
+        .shelf-arrow:hover { transform:translateY(-50%) scale(1.12); box-shadow: var(--shadow-lg); }
+        .shelf-arrow.right { right:4px; }
+        .shelf-arrow.left  { left:4px; }
+
+        /* أزرار الفئات فوق الرف */
+        .shelf-cat-tabs {
+            display:flex; gap:8px; overflow-x:auto;
+            scrollbar-width:none; padding-bottom:2px;
+            margin-bottom:14px;
+        }
+        .shelf-cat-tabs::-webkit-scrollbar { display:none }
+        .shelf-tab {
+            flex-shrink:0; padding:5px 14px; border-radius:16px;
+            background:var(--bg-card2); border:1.5px solid var(--border);
+            font-size:10px; font-weight:700; color:var(--text-sub);
+            cursor:pointer; transition:all .2s; white-space:nowrap;
+        }
+        .shelf-tab:hover { border-color:var(--blue-1); color:var(--blue-1); }
+        .shelf-tab.active {
+            background:linear-gradient(135deg,#3b82f6,#2563eb);
+            color:white; border-color:transparent;
+            box-shadow: 0 3px 10px rgba(59,130,246,0.35);
+        }
+
+        /* Dots */
+        .shelf-dots { display:flex; gap:6px; justify-content:center; margin-top:10px; }
+        .shelf-dot {
+            width:6px; height:6px; border-radius:99px;
+            background:var(--border); transition:all .3s; cursor:pointer;
+        }
+        .shelf-dot.active { width:20px; background:var(--blue-1); }
+
+        /* ══════════════════════════════════
+           الكاروسيل (البانر العلوي)
+        ══════════════════════════════════ */
+        .carousel-dots { display:flex; gap:6px; justify-content:center; margin-top:10px; }
+        .carousel-dot {
+            width:6px; height:6px; border-radius:99px;
+            background:var(--border); transition:all .3s; cursor:pointer;
+        }
+        .carousel-dot.active { width:18px; background:var(--blue-1); }
+
+        /* ── زر تحميل المزيد ── */
+        .load-more-btn {
+            display:flex; align-items:center; gap:8px;
+            padding:11px 32px;
+            background:linear-gradient(135deg,#3b82f6,#2563eb);
+            color:white; font-family:'Cairo',sans-serif; font-size:13px; font-weight:700;
+            border:none; border-radius:14px; cursor:pointer;
+            box-shadow:0 4px 16px rgba(59,130,246,0.30);
+            transition:all .22s;
+        }
+        .load-more-btn:hover { transform:translateY(-2px); box-shadow:0 6px 22px rgba(59,130,246,0.42); }
+        .load-more-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+        /* ── Section divider ── */
+        .section-label {
+            font-size:13px; font-weight:800; color:var(--text-main);
+            letter-spacing:-.2px;
+        }
+
+        /* ── نتائج البحث ── */
+        #searchResultsPage { display:none }
+        #searchResultsPage.open { display:block }
+        #mainContent.hidden-for-search { display:none }
+
+        /* ══ تحسينات الجوال ══ */
+        @media (max-width:640px) {
+            #searchDropdown {
+                position:fixed; top:60px; right:0; left:0;
+                border-radius:0 0 16px 16px; margin-top:0; max-height:55vh;
+            }
+            .shelf-track { height: 230px !important; }
+            .shelf-pos-0 { width: 160px !important; }
+            .shelf-pos-1 { width: 130px !important; transform: translate(calc(-50% + 155px), -50%) !important; }
+            .shelf-pos-2 { width: 110px !important; transform: translate(calc(-50% + 285px), -50%) !important; opacity:.55 !important; }
+            .shelf-pos--1 { width: 130px !important; transform: translate(calc(-50% - 155px), -50%) !important; }
+            .shelf-pos--2 { width: 110px !important; transform: translate(calc(-50% - 285px), -50%) !important; opacity:.55 !important; }
+            .shelf-pos-hidden-right { transform: translate(calc(-50% + 380px), -50%) scale(0.8) !important; }
+            .shelf-pos-hidden-left { transform: translate(calc(-50% - 380px), -50%) scale(0.8) !important; }
+            
+            #searchGrid { grid-template-columns:repeat(2,1fr) !important; gap:8px; }
+        }
+
+        /* اللمس */
+        .cat-btn, .shelf-tab, .search-item, .load-more-btn, .shelf-card {
+            -webkit-tap-highlight-color:transparent;
+        }
+
+        /* تحسين padding جوال */
+        @media (max-width:640px) {
+            main .container { padding-right:12px; padding-left:12px; }
+        }
+    </style>
+    <!-- SEO -->
+    <meta name="description" content="تصفح آلاف المنتجات من إلكترونيات وملابس ورياضة ومنزل وجمال على واجد — السوق الإلكتروني الجزائري.">
+    <meta name="keywords" content="واجد, سوق إلكتروني, الجزائر, تسوق, متاجر, منتجات">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://wajed.netlify.app/explore.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="واجد | استكشاف المنتجات">
+    <meta property="og:description" content="تصفح آلاف المنتجات من إلكترونيات وملابس ورياضة ومنزل وجمال على واجد — السوق الإلكتروني الجزائري.">
+    <meta property="og:image" content="https://i.ibb.co/0j5sD2dw/logofinal.png">
+    <meta property="og:url" content="https://wajed.netlify.app/explore.html">
+    <meta property="og:locale" content="ar_DZ">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="واجد | استكشاف المنتجات">
+    <meta name="twitter:description" content="تصفح آلاف المنتجات من إلكترونيات وملابس ورياضة ومنزل وجمال على واجد — السوق الإلكتروني الجزائري.">
+    <meta name="twitter:image" content="https://i.ibb.co/0j5sD2dw/logofinal.png">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E9TEZNS945"></script>
+    <script>
+        window.dataLayer=window.dataLayer||[];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js',new Date()); gtag('config','G-E9TEZNS945');
+    </script>
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+<!-- ══ NAV (unchanged) ══ -->
+<nav class="glass-nav h-[60px] flex items-center">
+    <div class="w-full max-w-6xl mx-auto px-3 sm:px-4 flex items-center gap-2 sm:gap-3">
+        <a href="landing.html" class="flex items-center shrink-0">
+            <img src="https://i.ibb.co/0j5sD2dw/logofinal.png" alt="واجد" class="h-8 sm:h-9 object-contain drop-shadow-sm">
+        </a>
+        <div class="relative flex-1 min-w-0" id="searchWrap">
+            <div class="search-box flex items-center overflow-hidden">
+                <span class="px-2.5 text-slate-400 shrink-0">
+                    <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </span>
+                <input type="text" id="searchInput" placeholder="ابحث..."
+                    class="flex-1 min-w-0 bg-transparent border-none outline-none text-slate-800 dark:text-white placeholder-slate-400 text-xs sm:text-sm h-9 font-medium"
+                    style="color:var(--text-main)"
+                    oninput="onSearchInput(this.value)"
+                    onkeydown="if(event.key==='Enter') doSearch(this.value)"
+                    onfocus="if(this.value.length>1) openDropdown()">
+                <button id="clearBtn" onclick="clearSearch()" class="px-2 text-slate-400 hover:text-slate-600 hidden text-xs">✕</button>
+                <button onclick="doSearch(document.getElementById('searchInput').value)"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 h-9 text-xs transition-colors shrink-0 hidden sm:block">
+                    بحث
+                </button>
+            </div>
+            <div id="searchDropdown"
+                class="absolute top-full right-0 left-0 mt-1.5 rounded-xl z-50 overflow-hidden max-h-[60vh] overflow-y-auto">
+                <div id="searchLoading" class="flex items-center gap-2 px-4 py-3 text-xs text-slate-400" style="display:none">
+                    <div class="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    جاري البحث...
+                </div>
+                <div id="dropdownResults"></div>
+                <div id="dropdownEmpty" class="px-4 py-6 text-center text-xs text-slate-400" style="display:none">
+                    لا توجد نتائج لـ "<span id="emptyQuery"></span>"
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="toggleTheme()" class="w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-[#1e2235] transition-colors flex items-center justify-center text-base" style="color:var(--text-sub)">
+                <span id="themeIcon">🌙</span>
+            </button>
+            <a id="authBtn" href="index.html"
+               class="px-3 py-1.5 text-[11px] sm:text-xs font-bold bg-gradient-to-l from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white rounded-xl transition-all shadow-sm hover:-translate-y-px whitespace-nowrap">
+                تسجيل الدخول
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- ══ صفحة نتائج البحث ══ -->
+<div id="searchResultsPage" class="flex-1 py-6">
+    <div class="w-full max-w-6xl mx-auto px-3 sm:px-4">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h2 class="text-sm font-bold" style="color:var(--text-main)">نتائج البحث: "<span id="searchTitle" class="text-blue-600"></span>"</h2>
+                <p class="text-xs mt-0.5" style="color:var(--text-sub)"><span id="searchCount">0</span> نتيجة</p>
+            </div>
+            <button onclick="clearSearch()" class="text-xs font-bold text-blue-600 hover:underline">← رجوع</button>
+        </div>
+        <div id="searchGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3"></div>
+        <div id="searchNoResults" class="text-center py-16 hidden">
+            <div class="text-4xl mb-3">🔍</div>
+            <p class="text-sm font-bold" style="color:var(--text-sub)">لا توجد نتائج</p>
+            <p class="text-xs mt-1" style="color:var(--text-sub)">جرّب كلمات مختلفة أو تصفح الفئات</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══ المحتوى الرئيسي ══ -->
+<div id="mainContent" class="flex-1">
+
+    <!-- Carousel / إعلان كبير علوي -->
+    <section class="pt-4 pb-2">
+        <div class="w-full max-w-6xl mx-auto px-3 sm:px-4">
+            <div class="relative w-full overflow-hidden rounded-2xl border" style="background:var(--bg-card); border-color:var(--border); box-shadow:var(--shadow-sm)">
+                <div id="carouselInner" class="flex transition-transform duration-700 ease-in-out" style="transform:translateX(0%)">
+                    <div class="w-full flex-shrink-0 flex flex-col md:flex-row items-center p-5 md:p-7 gap-5 min-w-full">
+                        <div class="flex-1">
+                            <span class="text-[9px] font-bold bg-red-100 text-red-600 px-2.5 py-1 rounded-lg mb-3 inline-block tracking-wide">عروض كبرى</span>
+                            <h4 class="text-base md:text-lg font-bold mb-2 leading-snug" style="color:var(--text-main)">أحدث الأجهزة الإلكترونية بأسعار مميزة</h4>
+                            <p class="text-xs mb-4 leading-relaxed" style="color:var(--text-sub)">تسوق أحدث الهواتف والحواسيب من أفضل المتاجر.</p>
+                            <button onclick="setCategory('electronics')" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">اكتشف العروض <span>←</span></button>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&q=60" class="w-full md:w-1/3 h-28 md:h-36 object-cover rounded-xl shadow-sm">
+                    </div>
+                    <div class="w-full flex-shrink-0 flex flex-col md:flex-row items-center p-5 md:p-7 gap-5 min-w-full">
+                        <div class="flex-1">
+                            <span class="text-[9px] font-bold bg-green-100 text-green-600 px-2.5 py-1 rounded-lg mb-3 inline-block tracking-wide">وصل حديثاً</span>
+                            <h4 class="text-base md:text-lg font-bold mb-2 leading-snug" style="color:var(--text-main)">تشكيلة أزياء الموسم الجديد</h4>
+                            <p class="text-xs mb-4 leading-relaxed" style="color:var(--text-sub)">تألق بأحدث صيحات الموضة مع التوصيل لـ 58 ولاية.</p>
+                            <button onclick="setCategory('clothing')" class="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1">تصفح التشكيلة <span>←</span></button>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&q=60" class="w-full md:w-1/3 h-28 md:h-36 object-cover rounded-xl shadow-sm">
+                    </div>
+                </div>
+                <button onclick="prevSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all hover:scale-110 shelf-arrow" style="position:absolute">›</button>
+                <button onclick="nextSlide()" class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all hover:scale-110 shelf-arrow" style="position:absolute">‹</button>
+            </div>
+            <div class="carousel-dots mt-3" id="carouselDots">
+                <div class="carousel-dot active" onclick="goSlide(0)"></div>
+                <div class="carousel-dot" onclick="goSlide(1)"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ الأقسام الديناميكية ══ -->
+    <main class="py-4 sm:py-6">
+        <div class="w-full max-w-6xl mx-auto px-3 sm:px-4">
+
+            <!-- Loading -->
+            <div id="loadingState" class="text-center py-16">
+                <div class="inline-block w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                <p class="text-sm font-bold" style="color:var(--text-sub)">جاري تحميل المنتجات...</p>
+            </div>
+            <div id="emptyState" class="text-center py-16 hidden">
+                <div class="text-4xl mb-3">📦</div>
+                <p class="text-sm font-bold" style="color:var(--text-sub)">لا توجد منتجات في هذه الفئة حالياً</p>
+            </div>
+
+            <!-- ═══ قسم الإعلانات ═══ -->
+            <section id="adsSection" class="ads-section hidden">
+                <div class="shelf-title-line mb-3">
+                    <div class="shelf-title-icon">👑</div>
+                    <h3 class="section-label">منتوجات مميزة</h3>
+                </div>
+                <div id="adsGrid" class="ads-grid"></div>
+            </section>
+
+            <!-- ═══ الموصى به (أكثر طلباً) ═══ -->
+            <section id="topSection" class="top-section hidden">
+                <div class="shelf-title-line mb-3">
+                    <div class="shelf-title-icon">⭐</div>
+                    <h3 class="section-label">الأكثر طلباً</h3>
+                </div>
+                <div id="topGrid" class="top-grid"></div>
+            </section>
+
+            <!-- ═══ رف المنتجات (carousel) ═══ -->
+            <section id="shelfSection" class="shelf-section hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="shelf-title-line flex-1">
+                        <div class="shelf-title-icon">🛍️</div>
+                        <h3 class="section-label">المنتجات</h3>
+                    </div>
+                </div>
+                <!-- أزرار الفئات فوق الرف -->
+                <div class="shelf-cat-tabs" id="shelfCatTabs">
+                    <button class="shelf-tab active" data-scat="all" onclick="setShelfCat('all')">🌐 الكل</button>
+                    <button class="shelf-tab" data-scat="electronics" onclick="setShelfCat('electronics')">💻 إلكترونيات</button>
+                    <button class="shelf-tab" data-scat="clothing" onclick="setShelfCat('clothing')">👗 ملابس</button>
+                    <button class="shelf-tab" data-scat="sports" onclick="setShelfCat('sports')">⚽ رياضة</button>
+                    <button class="shelf-tab" data-scat="home" onclick="setShelfCat('home')">🏠 منزل</button>
+                    <button class="shelf-tab" data-scat="beauty" onclick="setShelfCat('beauty')">💄 جمال</button>
+                    <button class="shelf-tab" data-scat="other" onclick="setShelfCat('other')">📦 أخرى</button>
+                </div>
+                <div class="shelf-viewport">
+                    <button class="shelf-arrow right" onclick="shelfNav(-1)">›</button>
+                    <div id="shelfTrack" class="shelf-track px-12"></div>
+                    <button class="shelf-arrow left" onclick="shelfNav(1)">‹</button>
+                </div>
+                <div class="shelf-dots" id="shelfDots"></div>
+            </section>
+
+            <!-- زر تحميل المزيد (غير مستخدم بالواجهة الجديدة) -->
+            <div class="flex justify-center mt-6 mb-2">
+                <button id="loadMoreBtn" onclick="loadProducts(false)" style="display:none;" class="load-more-btn">
+                    <span>تحميل المزيد</span><span>↓</span>
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer class="border-t py-5 mt-auto" style="background:var(--bg-card); border-color:var(--border)">
+    <div class="w-full max-w-6xl mx-auto px-4 text-center">
+        <div class="flex items-center justify-center gap-2 mb-2">
+            <img src="https://i.ibb.co/0j5sD2dw/logofinal.png" alt="واجد" class="h-5 object-contain opacity-60">
+        </div>
+        <p class="text-[10px]" style="color:var(--text-sub)">© 2026 واجد Marketplace — جميع الحقوق محفوظة</p>
+    </div>
+</footer>
+
+<script>
+/* ══ Config ══ */
+const SB  = 'https://mcpjelaeofjyzitbyugj.supabase.co';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jcGplbGFlb2ZqeXppdGJ5dWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzYxMzcsImV4cCI6MjA5NTcxMjEzN30.Us8EsXw_McTbh3hwjZeFzoODgygnBupVmeLaPeedbhc';
+const H   = { apikey:KEY, Authorization:`Bearer ${KEY}` };
+
+const CATS = {
+    electronics:{ label:'إلكترونيات وهواتف', icon:'💻' },
+    clothing:   { label:'ملابس وأزياء',       icon:'👗' },
+    sports:     { label:'رياضة ولياقة',       icon:'⚽' },
+    home:       { label:'منزل وديكور',        icon:'🏠' },
+    beauty:     { label:'جمال وعناية',        icon:'💄' },
+    other:      { label:'منتجات متنوعة',      icon:'📦' },
+};
+
+let allProducts = [];
+let currentCat  = 'all';
+let searchTimer = null;
+let isSearchMode = false;
+let currentPage = 0;
+const PAGE_SIZE = 40;
+let isLoading   = false;
+let hasMore     = true;
+
+/* ══════════════════════════════════════════
+   ═══    الإعلانات — تُجلب من Supabase   ═══
+   ══════════════════════════════════════════ */
+let ADS_DATA = [];
+
+async function fetchAds() {
+    try {
+        const res = await fetch(
+            `${SB}/rest/v1/ads?select=*&active=is.true&order=sort_order.asc,id.asc`,
+            { headers: H }
+        );
+        if (!res.ok) throw new Error('fetch failed');
+        ADS_DATA = await res.json();
+    } catch(e) {
+        console.warn('ads fetch failed, using empty list', e);
+        ADS_DATA = [];
+    }
+}
+
+function renderAds() {
+    if (!ADS_DATA.length) return;
+    const section = document.getElementById('adsSection');
+    const grid    = document.getElementById('adsGrid');
+    section.classList.remove('hidden');
+
+    grid.innerHTML = ADS_DATA.map((ad, idx) => {
+        const imgs = Array.isArray(ad.images) && ad.images.length ? ad.images : [''];
+        const multiSlide = imgs.length > 1;
+        const imgTags = imgs.map((src, i) => `
+            <img src="${src}" alt="${ad.name}" loading="lazy"
+                 class="ad-slide-img" data-idx="${i}"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+                        opacity:${i===0?'1':'0'};transition:opacity .6s ease;"
+                 onerror="this.style.display='none'">`
+        ).join('');
+
+        const dotsHtml = multiSlide ? `
+            <div class="ad-slide-dots" style="
+                position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+                display:flex;gap:4px;z-index:5;pointer-events:none;">
+                ${imgs.map((_,i)=>`<div style="
+                    width:${i===0?'14px':'6px'};height:6px;border-radius:99px;
+                    background:rgba(255,255,255,${i===0?'1':'.5'});
+                    transition:all .3s;" class="adot-${idx}"></div>`).join('')}
+            </div>` : '';
+
+        return `
+        <a href="${ad.link || '#'}" class="ad-card" data-adid="${idx}" style="position:relative">
+            ${imgTags}
+            <div class="ad-overlay"></div>
+            <div class="ad-label">${ad.name}</div>
+            ${dotsHtml}
+        </a>`;
+    }).join('');
+
+    ADS_DATA.forEach((ad, idx) => {
+        const imgs = Array.isArray(ad.images) ? ad.images : [];
+        if (imgs.length < 2) return;
+        let cur = 0;
+        setInterval(() => {
+            const card = grid.querySelector(`[data-adid="${idx}"]`);
+            if (!card) return;
+            const slides = card.querySelectorAll('.ad-slide-img');
+            const dots   = card.querySelectorAll(`.adot-${idx}`);
+            slides[cur].style.opacity = '0';
+            if (dots[cur]) { dots[cur].style.width='6px'; dots[cur].style.background='rgba(255,255,255,.5)'; }
+            cur = (cur + 1) % imgs.length;
+            slides[cur].style.opacity = '1';
+            if (dots[cur]) { dots[cur].style.width='14px'; dots[cur].style.background='rgba(255,255,255,1)'; }
+        }, 2800);
+    });
+}
+
+/* ══ رف الـ carousel بتأثير center-focus السلس ══ */
+let shelfProducts   = [];
+let shelfFiltered   = [];
+let shelfCurrentCat = 'all';
+let shelfIdx        = 0;
+
+function setShelfCat(cat) {
+    shelfCurrentCat = cat;
+    document.querySelectorAll('.shelf-tab').forEach(b =>
+        b.classList.toggle('active', b.dataset.scat === cat)
+    );
+    shelfFiltered = cat === 'all'
+        ? shelfProducts
+        : shelfProducts.filter(p => p.category === cat);
+    shelfIdx = Math.floor(shelfFiltered.length / 2);
+    renderShelfInit();
+}
+
+// 1- دالة التهيئة: تُنشئ جميع بطاقات المنتجات في الـ DOM مرة واحدة لتجنب الوميض وتفعيل حركات CSS.
+function renderShelfInit() {
+    const track = document.getElementById('shelfTrack');
+    const dots  = document.getElementById('shelfDots');
+    
+    if (!shelfFiltered.length) { 
+        track.innerHTML = ''; 
+        dots.innerHTML = ''; 
+        return; 
+    }
+
+    track.innerHTML = shelfFiltered.map((p, i) => {
+        const img  = p.image_url || 'https://placehold.co/200x200/f1f5f9/3b82f6?text=📦';
+        const shop = p.merchants?.shop_name || 'متجر';
+        return `
+        <a href="product-details.html?id=${p.id}" class="shelf-card" id="shelf-card-${i}">
+            <div style="overflow:hidden">
+                <img src="${img}" class="shelf-card-img"
+                     onerror="this.src='https://placehold.co/200x200/f1f5f9/3b82f6?text=📦'" loading="lazy">
+            </div>
+            <div class="shelf-card-body">
+                <div class="shelf-card-shop">${shop}</div>
+                <div class="shelf-card-name">${p.product_name}</div>
+                <div class="shelf-card-price">${Number(p.price).toLocaleString()} دج</div>
+            </div>
+        </a>`;
+    }).join('');
+
+    updateShelfClasses();
+}
+
+// 2- دالة التحديث: تُعدل فقط أسماء الفئات لكل بطاقة وتترك لـ CSS الانسيابية
+function updateShelfClasses() {
+    const dots = document.getElementById('shelfDots');
+    const n = shelfFiltered.length;
+    if(!n) return;
+
+    // النقاط السفلية (أقصى حد 7)
+    const dotCount = Math.min(n, 7);
+    dots.innerHTML = Array.from({length: dotCount}, (_,i) => {
+        const active = Math.round(shelfIdx / n * dotCount) === i || (dotCount === 1);
+        return `<div class="shelf-dot${active ? ' active' : ''}" onclick="shelfJump(${i},${dotCount},${n})"></div>`;
+    }).join('');
+
+    // تحديث الفئات
+    for (let i = 0; i < n; i++) {
+        const card = document.getElementById(`shelf-card-${i}`);
+        if (!card) continue;
+        
+        let diff = shelfIdx - i; 
+
+        // التعامل مع الانتقال الدائري اللانهائي بمسار أقصر
+        if (diff > Math.floor(n/2)) diff -= n;
+        if (diff < -Math.floor(n/2)) diff += n;
+
+        // إعادة ضبط الفئات
+        card.className = 'shelf-card';
+        
+        if (diff === 0) {
+            card.classList.add('shelf-pos-0');
+        } else if (diff === 1) {
+            card.classList.add('shelf-pos-1');
+        } else if (diff === 2) {
+            card.classList.add('shelf-pos-2');
+        } else if (diff === -1) {
+            card.classList.add('shelf-pos--1');
+        } else if (diff === -2) {
+            card.classList.add('shelf-pos--2');
+        } else if (diff > 2) {
+            card.classList.add('shelf-pos-hidden-right');
+        } else {
+            card.classList.add('shelf-pos-hidden-left');
+        }
+    }
+}
+
+function shelfNav(dir) {
+    if (!shelfFiltered.length) return;
+    shelfIdx = (shelfIdx + dir + shelfFiltered.length) % shelfFiltered.length;
+    updateShelfClasses();
+}
+
+function shelfJump(dotIdx, dotCount, total) {
+    shelfIdx = Math.round(dotIdx / dotCount * total);
+    if(shelfIdx >= total) shelfIdx = total - 1;
+    updateShelfClasses();
+}
+
+/* auto-rotate shelf */
+let shelfAutoTimer;
+function startShelfAuto() {
+    clearInterval(shelfAutoTimer);
+    shelfAutoTimer = setInterval(() => {
+        if (shelfFiltered.length) { 
+            shelfIdx = (shelfIdx + 1) % shelfFiltered.length; 
+            updateShelfClasses(); 
+        }
+    }, 3500);
+}
+function stopShelfAuto() { clearInterval(shelfAutoTimer); }
+
+/* ══ الأكثر طلباً (أول 4) ══ */
+function renderTopProducts(products) {
+    const top4 = products.slice(0, 4);
+    if (!top4.length) return;
+    const section = document.getElementById('topSection');
+    const grid    = document.getElementById('topGrid');
+    section.classList.remove('hidden');
+    grid.innerHTML = top4.map(p => {
+        const img  = p.image_url || 'https://placehold.co/300x300/f1f5f9/3b82f6?text=📦';
+        return `
+        <a href="product-details.html?id=${p.id}" class="top-card block text-decoration-none" style="text-decoration:none">
+            <div style="overflow:hidden; border-radius:20px 20px 0 0">
+                <img src="${img}" class="top-card-img"
+                     onerror="this.src='https://placehold.co/300x300/f1f5f9/3b82f6?text=📦'" loading="lazy">
+            </div>
+            <div class="top-card-body">
+                <div class="top-card-badge">⭐ موصى به</div>
+                <div class="top-card-name">${p.product_name}</div>
+                <div class="top-card-price">${Number(p.price).toLocaleString()} دج</div>
+            </div>
+        </a>`;
+    }).join('');
+}
+
+/* ══ جلب المنتجات ══ */
+async function loadProducts(reset = true) {
+    if (isLoading) return;
+    if (reset) {
+        currentPage = 0; allProducts = []; hasMore = true;
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('topSection').classList.add('hidden');
+        document.getElementById('shelfSection').classList.add('hidden');
+        document.getElementById('adsSection').classList.add('hidden');
+    }
+    if (!hasMore) return;
+    isLoading = true;
+    const lmb = document.getElementById('loadMoreBtn');
+    if (lmb) lmb.disabled = true;
+
+    try {
+        const from = currentPage * PAGE_SIZE;
+        const cat  = currentCat !== 'all' ? `&category=eq.${currentCat}` : '';
+        const res  = await fetch(
+            `${SB}/rest/v1/products?select=*,merchants(shop_name,username)&order=id.desc&limit=${PAGE_SIZE}&offset=${from}${cat}`,
+            { headers:{ ...H, 'Prefer':'count=exact' } }
+        );
+        const data = await res.json();
+        const cr   = res.headers.get('content-range');
+        const total= cr ? parseInt(cr.split('/')[1]) : 0;
+
+        allProducts = reset ? data : [...allProducts, ...data];
+        currentPage++;
+        hasMore = allProducts.length < total;
+
+        renderAll(reset);
+        updateLoadMoreBtn();
+    } catch(e) {
+        document.getElementById('loadingState').innerHTML =
+            '<div class="text-4xl mb-3">❌</div><p class="text-sm font-bold" style="color:var(--text-sub)">فشل تحميل المنتجات</p>';
+    } finally {
+        isLoading = false;
+        if (lmb) lmb.disabled = false;
+    }
+}
+
+function updateLoadMoreBtn() {
+    const btn = document.getElementById('loadMoreBtn');
+    if (btn) btn.style.display = hasMore ? 'flex' : 'none';
+}
+
+/* ══ عرض كل الأقسام ══ */
+function renderAll(reset = true) {
+    document.getElementById('loadingState').classList.add('hidden');
+    if (!allProducts.length) {
+        document.getElementById('emptyState').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('emptyState').classList.add('hidden');
+
+    // 1. إعلانات
+    renderAds();
+
+    // 2. الأكثر طلباً
+    renderTopProducts(allProducts);
+
+    // 3. رف المنتجات
+    shelfProducts = allProducts;
+    shelfFiltered = shelfCurrentCat === 'all' ? shelfProducts : shelfProducts.filter(p=>p.category===shelfCurrentCat);
+    shelfIdx = Math.floor(shelfFiltered.length / 2);
+    document.getElementById('shelfSection').classList.remove('hidden');
+    renderShelfInit();
+    startShelfAuto();
+
+    // توقف الدوران عند hover
+    const sv = document.querySelector('.shelf-viewport');
+    if (sv) {
+        sv.addEventListener('mouseenter', stopShelfAuto);
+        sv.addEventListener('mouseleave', startShelfAuto);
+        sv.addEventListener('touchstart', stopShelfAuto, {passive:true});
+        sv.addEventListener('touchend', ()=>setTimeout(startShelfAuto,2000), {passive:true});
+    }
+}
+
+/* ══ فلتر الفئة (global) ══ */
+function setCategory(cat) {
+    currentCat = cat;
+    clearSearch();
+    document.querySelectorAll('.cat-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.cat === cat)
+    );
+    loadProducts(true);
+}
+
+/* ══════════════════════
+   البحث الذكي
+══════════════════════ */
+let lastQuery = '';
+let isSearchModeFlag = false;
+
+function onSearchInput(val) {
+    document.getElementById('clearBtn').classList.toggle('hidden', !val);
+    clearTimeout(searchTimer);
+    if (!val.trim()) { closeDropdown(); if (isSearchMode) clearSearch(); return; }
+    document.getElementById('searchLoading').style.display = 'flex';
+    openDropdown();
+    searchTimer = setTimeout(()=>liveSearch(val.trim()), 280);
+}
+
+async function liveSearch(q) {
+    if (!q) return;
+    lastQuery = q;
+    document.getElementById('dropdownResults').innerHTML = '';
+    document.getElementById('dropdownEmpty').style.display = 'none';
+    const ql = q.toLowerCase();
+    const prodMatches = allProducts.filter(p =>
+        p.product_name.toLowerCase().includes(ql) ||
+        (p.description||'').toLowerCase().includes(ql) ||
+        (p.merchants?.shop_name||'').toLowerCase().includes(ql)
+    ).slice(0, 6);
+
+    let shopMatches = [];
+    try {
+        const r = await fetch(
+            `${SB}/rest/v1/merchants?or=(shop_name.ilike.*${encodeURIComponent(q)}*,username.ilike.*${encodeURIComponent(q)}*)&select=id,shop_name,username&limit=3`,
+            { headers:H }
+        );
+        shopMatches = await r.json();
+    } catch(e){}
+
+    document.getElementById('searchLoading').style.display = 'none';
+    if (!prodMatches.length && !shopMatches.length) {
+        document.getElementById('dropdownEmpty').style.display = 'block';
+        document.getElementById('emptyQuery').textContent = q;
+        return;
+    }
+
+    let html = '';
+    if (shopMatches.length) {
+        html += `<div class="search-section-lbl">🏪 متاجر</div>`;
+        html += shopMatches.map(s=>`
+            <a href="store.html?shop=${s.username}" class="search-item">
+                <div class="search-img flex items-center justify-center text-2xl rounded-xl" style="background:rgba(59,130,246,0.08)">🏪</div>
+                <div class="flex-1 min-w-0">
+                    <div class="search-name">${s.shop_name}</div>
+                    <div class="search-meta">@${s.username}</div>
+                </div>
+                <span class="text-xs text-blue-500 font-bold">زيارة</span>
+            </a>`).join('');
+    }
+    if (prodMatches.length) {
+        html += `<div class="search-section-lbl">📦 منتجات</div>`;
+        html += prodMatches.map(p=>{
+            const img = p.image_url || 'https://placehold.co/44x44/f1f5f9/3b82f6?text=📦';
+            return `
+            <a href="product-details.html?id=${p.id}" class="search-item">
+                <img src="${img}" class="search-img" onerror="this.src='https://placehold.co/44x44/f1f5f9/3b82f6?text=📦'">
+                <div class="flex-1 min-w-0">
+                    <div class="search-name">${highlight(p.product_name,q)}</div>
+                    <div class="search-meta">${p.merchants?.shop_name||'متجر'}</div>
+                </div>
+                <div class="search-price">${Number(p.price).toLocaleString()} دج</div>
+            </a>`;
+        }).join('');
+        const total2 = allProducts.filter(p=>p.product_name.toLowerCase().includes(q.toLowerCase())||(p.description||'').toLowerCase().includes(q.toLowerCase())).length;
+        if (total2>6) html+=`<button onclick="doSearch('${q.replace(/'/g,"\\'")}');closeDropdown()" class="w-full py-2.5 text-xs font-bold text-blue-600 hover:underline transition-colors">عرض كل النتائج (${total2}) ←</button>`;
+    }
+    document.getElementById('dropdownResults').innerHTML = html;
+}
+
+function highlight(text, q) {
+    const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');
+    return text.replace(re,'<mark class="bg-yellow-100 text-inherit rounded px-0.5">$1</mark>');
+}
+
+function doSearch(q) {
+    q = q?.trim();
+    if (!q) { clearSearch(); return; }
+    closeDropdown();
+    isSearchMode = true;
+    document.getElementById('searchInput').value = q;
+    document.getElementById('clearBtn').classList.remove('hidden');
+    document.getElementById('searchResultsPage').classList.add('open');
+    document.getElementById('mainContent').classList.add('hidden-for-search');
+    document.getElementById('searchTitle').textContent = q;
+    const ql = q.toLowerCase();
+    const results = allProducts.filter(p =>
+        p.product_name.toLowerCase().includes(ql) ||
+        (p.description||'').toLowerCase().includes(ql) ||
+        (p.merchants?.shop_name||'').toLowerCase().includes(ql) ||
+        (p.merchants?.username||'').toLowerCase().includes(ql)
+    );
+    document.getElementById('searchCount').textContent = results.length;
+    if (!results.length) {
+        document.getElementById('searchGrid').innerHTML = '';
+        document.getElementById('searchNoResults').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('searchNoResults').classList.add('hidden');
+    document.getElementById('searchGrid').innerHTML = results.map(p=>{
+        const img  = p.image_url || 'https://placehold.co/200x200/f1f5f9/3b82f6?text=📦';
+        const shop = p.merchants?.shop_name||'متجر';
+        return `
+        <a href="product-details.html?id=${p.id}" class="group block rounded-xl overflow-hidden transition-all duration-300"
+           style="background:var(--bg-card);border:1px solid var(--border);text-decoration:none"
+           onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='var(--shadow-md)'"
+           onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="aspect-ratio:1/1;overflow:hidden;background:var(--bg-card2)">
+                <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                     onerror="this.src='https://placehold.co/200x200/f1f5f9/3b82f6?text=📦'">
+            </div>
+            <div class="p-2.5">
+                <span class="text-[9px] block truncate" style="color:var(--text-sub)">${shop}</span>
+                <h4 class="text-xs font-semibold truncate mt-0.5 group-hover:text-blue-600 transition-colors" style="color:var(--text-main)">${highlight(p.product_name,q)}</h4>
+                <div class="text-xs font-black mt-1" style="color:var(--text-main)">${Number(p.price).toLocaleString()} <span style="color:var(--text-sub);font-weight:400">دج</span></div>
+            </div>
+        </a>`;
+    }).join('');
+}
+
+function clearSearch() {
+    isSearchMode = false;
+    document.getElementById('searchInput').value = '';
+    document.getElementById('clearBtn').classList.add('hidden');
+    document.getElementById('searchResultsPage').classList.remove('open');
+    document.getElementById('mainContent').classList.remove('hidden-for-search');
+    closeDropdown();
+}
+
+function openDropdown()  { document.getElementById('searchDropdown').classList.add('open'); }
+function closeDropdown() { document.getElementById('searchDropdown').classList.remove('open'); }
+document.addEventListener('click', e=>{
+    if (!document.getElementById('searchWrap').contains(e.target)) closeDropdown();
+});
+
+/* ══ كاروسيل البانر العلوي ══ */
+let slide = 0;
+const ci = document.getElementById('carouselInner');
+const totalSlides = ci.children.length;
+function updateDots() {
+    document.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===slide));
+}
+function goSlide(n) { slide=n; ci.style.transform=`translateX(${slide*100}%)`; updateDots(); }
+setInterval(()=>{ slide=(slide+1)%totalSlides; ci.style.transform=`translateX(${slide*100}%)`; updateDots(); }, 4500);
+function nextSlide() { slide=(slide+1)%totalSlides; ci.style.transform=`translateX(${slide*100}%)`; updateDots(); }
+function prevSlide() { slide=(slide-1+totalSlides)%totalSlides; ci.style.transform=`translateX(${slide*100}%)`; updateDots(); }
+
+/* ══ وضع مظلم ══ */
+(function(){
+    const saved = localStorage.getItem('wajed-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (saved==='dark' || (!saved && prefersDark)) {
+        document.documentElement.setAttribute('data-theme','dark');
+        const icon = document.getElementById('themeIcon');
+        if(icon) icon.textContent='☀️';
+    }
+})();
+function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    document.documentElement.setAttribute('data-theme', isDark?'light':'dark');
+    localStorage.setItem('wajed-theme', isDark?'light':'dark');
+    document.getElementById('themeIcon').textContent = isDark?'🌙':'☀️';
+}
+
+/* ══ زر Auth الذكي ══ */
+(function(){
+    const btn = document.getElementById('authBtn');
+    if (!btn) return;
+    const merchantId = localStorage.getItem('merchant_id');
+    if (merchantId) {
+        const shopName = localStorage.getItem('shop_name')||'لوحة التحكم';
+        btn.href = 'dashboard.html';
+        btn.innerHTML = '🏪 '+(shopName.length>10?shopName.slice(0,10)+'…':shopName);
+        btn.className = btn.className
+            .replace('from-blue-600 to-blue-500','from-indigo-600 to-indigo-500')
+            .replace('hover:from-blue-700 hover:to-blue-600','hover:from-indigo-700 hover:to-indigo-600');
+    }
+})();
+
+/* ══ ابدأ ══ */
+fetchAds().then(() => loadProducts());
+</script>
+</body>
+</html>
